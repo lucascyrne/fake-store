@@ -33,9 +33,7 @@ function ProductsContent() {
   
   // Carregar produtos quando os filtros mudarem
   useEffect(() => {
-    const loadProducts = async () => {
-      console.log('ProductsPage - Carregando produtos com filtros:', { order, orderBy, category, limit, page });
-      
+    const loadProducts = async () => {      
       const result = await getProducts({
         order: order as 'asc' | 'desc',
         orderBy: 'price',
@@ -44,7 +42,6 @@ function ProductsContent() {
         page
       });
       
-      console.log('ProductsPage - Produtos carregados:', result);
       setProducts(result);
     };
     
