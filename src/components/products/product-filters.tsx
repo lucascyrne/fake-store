@@ -41,28 +41,31 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
   };
   
   const handlePriceChange = (value: string) => {
-    router.push(`${pathname}?${createQueryString({
-      orderBy: 'price',
-      order: value
-    })}`);
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set('orderBy', 'price');
+    newParams.set('order', value);
+    newParams.set('page', '1'); // Resetar para página 1
+    router.push(`${pathname}?${newParams.toString()}`);
   };
   
   const handleCategoryChange = (value: string) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    
     if (value === 'all') {
-      const newParams = new URLSearchParams(searchParams.toString());
       newParams.delete('category');
-      router.push(`${pathname}?${newParams.toString()}`);
     } else {
-      router.push(`${pathname}?${createQueryString({
-        category: value
-      })}`);
+      newParams.set('category', value);
     }
+    
+    newParams.set('page', '1'); // Resetar para página 1
+    router.push(`${pathname}?${newParams.toString()}`);
   };
   
   const handleLimitChange = (value: string) => {
-    router.push(`${pathname}?${createQueryString({
-      limit: value
-    })}`);
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set('limit', value);
+    newParams.set('page', '1'); // Resetar para página 1
+    router.push(`${pathname}?${newParams.toString()}`);
   };
   
   const handlePageChange = (newPage: number) => {
