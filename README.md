@@ -173,3 +173,33 @@ npm run test
 ---
 
 Este projeto foi desenvolvido como parte de um desafio técnico seguindo os requisitos especificados. Para mais detalhes sobre os requisitos, consulte a documentação do desafio.
+
+## Visão Geral da Interface
+
+A aplicação é composta por três páginas principais que permitem gerenciar produtos de forma intuitiva:
+
+### 🏠 Página Inicial
+
+![Página Inicial](./docs/images/home-page.png)
+
+- Visualização dos produtos em destaque
+- Acesso rápido ao catálogo completo
+- Layout responsivo com cards de produtos
+
+### 📋 Página de Produtos
+
+![Página de Produtos](./docs/images/products-page.png)
+
+- Lista completa de produtos com paginação
+- Filtros e ordenação por categoria e preço
+- Funcionalidades de busca e filtragem
+
+### 📝 Página de Produto
+
+![Página de Produto](./docs/images/product-page.png)
+
+- Detalhes completos do produto selecionado
+- Informações de preço, descrição e avaliações
+- Opções para edição e exclusão do produto
+
+Cada página foi desenvolvida seguindo princípios de usabilidade e design responsivo, garantindo uma experiência consistente em diferentes dispositivos.
