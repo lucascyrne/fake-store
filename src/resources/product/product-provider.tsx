@@ -87,9 +87,18 @@ const ProductProvider: FC<{ children: ReactNode }> = ({ children }) => {
       try {
         // Se já temos produtos em cache e não há filtro de categoria, usar o cache
         let productsToProcess: Product[] = [];
+        let allCategoryProducts: Product[] = [];
         
-        // Se temos um filtro de categoria ou o cache está vazio, buscar da API
-        if (filters.category || allProductsCache.length === 0) {
+        // Se temos um filtro de categoria, precisamos buscar todos os produtos dessa categoria
+        // para calcular corretamente o total de páginas
+        if (filters.category) {
+          // Primeiro, buscar todos os produtos da categoria (sem limite)
+          const categoryFilters = { ...filters, limit: undefined };
+          const { promise: allPromise } = productService.getProducts(categoryFilters);
+          const allResponse = await allPromise;
+          allCategoryProducts = allResponse.data;
+          
+          // Depois, buscar os produtos paginados
           const apiFilters = { ...filters };
           // Remover parâmetros de paginação que a API não suporta
           delete apiFilters.page;
@@ -98,14 +107,25 @@ const ProductProvider: FC<{ children: ReactNode }> = ({ children }) => {
           const { promise } = productService.getProducts(apiFilters);
           const response = await promise;
           productsToProcess = response.data;
+        } 
+        // Se não há filtro de categoria ou o cache está vazio
+        else if (allProductsCache.length === 0) {
+          const apiFilters = { ...filters };
+          // Remover parâmetros de paginação que a API não suporta
+          delete apiFilters.page;
+          delete apiFilters.offset;
           
-          // Atualizar o cache se não houver filtro de categoria
-          if (!filters.category) {
-            setAllProductsCache(response.data);
-          }
+          const { promise } = productService.getProducts(apiFilters);
+          const response = await promise;
+          productsToProcess = response.data;
+          allCategoryProducts = response.data;
+          
+          // Atualizar o cache
+          setAllProductsCache(response.data);
         } else {
           // Usar o cache
           productsToProcess = allProductsCache;
+          allCategoryProducts = allProductsCache;
         }
         
         // Aplicar filtros no cliente
@@ -127,26 +147,50 @@ const ProductProvider: FC<{ children: ReactNode }> = ({ children }) => {
         // Aplicar paginação
         let paginatedProducts = filteredProducts;
         if (filters.page !== undefined && filters.limit) {
+          // Calcular o índice inicial com base na página atual
           const startIndex = (filters.page - 1) * filters.limit;
-          paginatedProducts = filteredProducts.slice(startIndex, startIndex + filters.limit);
+          
+          // Se estamos filtrando por categoria, usar allCategoryProducts para paginação
+          if (filters.category) {
+            // Ordenar todos os produtos da categoria
+            const sortedCategoryProducts = sortProducts(
+              allCategoryProducts,
+              filters.orderBy,
+              filters.order
+            );
+            
+            // Aplicar paginação aos produtos ordenados
+            paginatedProducts = sortedCategoryProducts.slice(startIndex, startIndex + filters.limit);
+            console.log(`Paginando produtos da categoria ${filters.category}, página ${filters.page}, exibindo índices ${startIndex} até ${startIndex + filters.limit - 1}`);
+          } else {
+            // Para todos os produtos, usar filteredProducts
+            paginatedProducts = filteredProducts.slice(startIndex, startIndex + filters.limit);
+            console.log(`Paginando todos os produtos, página ${filters.page}, exibindo índices ${startIndex} até ${startIndex + filters.limit - 1}`);
+          }
         }
+        
+        // Calcular o número total de produtos e páginas
+        // Se temos um filtro de categoria, usar allCategoryProducts para calcular o total
+        const totalProducts = filters.category ? allCategoryProducts.length : filteredProducts.length;
+        const totalPages = filters.limit ? Math.ceil(totalProducts / filters.limit) : 1;
         
         // Atualizar o estado allProducts com informações de paginação
         setAllProducts({
           content: paginatedProducts,
-          totalElements: filteredProducts.length,
-          totalPages: filters.limit ? Math.ceil(filteredProducts.length / filters.limit) : 1,
+          totalElements: totalProducts,
+          totalPages: totalPages,
           size: filters.limit || filteredProducts.length,
           number: filters.page || 1,
           numberOfElements: paginatedProducts.length,
           first: filters.page === 1 || false,
           last: filters.limit ? 
-            (filters.page || 1) >= Math.ceil(filteredProducts.length / filters.limit) : 
+            (filters.page || 1) >= totalPages : 
             true
         });
         
         toggleLoading('getProducts', false);
         console.log('Produtos paginados:', paginatedProducts);
+        console.log('Total de páginas:', totalPages);
         return paginatedProducts;
       } catch (err) {
         if (err && typeof err === 'object' && 'name' in err && err.name === 'CanceledError') return [];
