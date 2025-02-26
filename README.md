@@ -6,8 +6,8 @@
 - [Estrutura da Aplicação](#estrutura-da-aplicação)
 - [Funcionalidades](#funcionalidades)
 - [Princípios SOLID](#princípios-solid)
-- [Testes](#testes)
-- [Visão Geral da Interface](#design)
+- [Testes Jest](#testes)
+- [Visão Geral](#design)
 
 ## Instalação e Execução
 
@@ -151,7 +151,7 @@ A aplicação foi desenvolvida seguindo os princípios SOLID:
 
 5. **Dependency Inversion Principle (DIP)**: Dependências são injetadas via props e hooks, como o `useProduct` que serve como uma abstração para acesso a dados.
 
-## Testes
+## Testes Jest
 
 O projeto inclui testes unitários para garantir a funcionalidade correta:
 
