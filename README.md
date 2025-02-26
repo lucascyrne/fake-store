@@ -7,6 +7,7 @@
 - [Funcionalidades](#funcionalidades)
 - [Princípios SOLID](#princípios-solid)
 - [Testes](#testes)
+- [Visão Geral da Interface](#design)
 
 ## Instalação e Execução
 
